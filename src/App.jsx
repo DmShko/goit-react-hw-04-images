@@ -8,104 +8,111 @@ import { Modal } from 'components/Modal/Modal';
 import { Searchbar } from 'components/Searchbar/Searchbar';
 import { Loader } from 'components/Loader/Loader';
 
-
 const API_KEY = '39566581-ca703ce31ea011c9b51d6d8b4';
 
 export const App = () => {
+  const [pageCounter, setPageCounter] = useState(0);
+  const [totalH, setTotalH] = useState(0);
+  const [quantityCard, setQuantityCard] = useState(12);
+  const [checkData, setCheckData] = useState('');
+  const [inputData, setInputData] = useState('');
+  const [cards, setCards] = useState([]);
+  const [key, setKey] = useState(true);
+  const [open, setOpen] = useState(false);
+  const [temporary, setTemporary] = useState(undefined);
+  const [fillingLevel, setFillingLevel] = useState(function () {
+    return Math.floor(totalH / quantityCard);
+  });
+  const [activeButton, setActiveButton] = useState(false);
+  const [load, setLoad] = useState(false);
+  const [cardID, setCardID] = useState('');
 
-  const [ pageCounter, setPageCounter ] = useState(0);
-  const [ totalH, setTotalH ] = useState(0);
-  const [ quantityCard, setQuantityCard ] = useState(12);
-  const [ checkData, setCheckData ] = useState('');
-  const [ inputData, setInputData ] = useState('');
-  const [ cards, setCards ] = useState([]);
-  const [ key, setKey ] = useState(true);
-  const [ open, setOpen ] = useState(false);
-  const [ temporary, setTemporary ] = useState(undefined);
-  const [ fillingLevel, setFillingLevel ] = useState(
-    function () {return Math.floor(totalH / quantityCard)});
-  const [ activeButton, setActiveButton ] = useState(false);
-  const [ load, setLoad] = useState(false);
-  const [ cardID, setCardID ] = useState('');
+
+  const resetValue = useRef();
+  resetValue.current = [0, 0, 12, '', '', [], true, false, undefined, 
+  function () {
+    return Math.floor(this.totalH / this.quantityCard);
+  }, false, false, ''];
 
 
-  const prevInput = useRef();
-  prevInput.current = inputData;
+  const hooks = {
+    pageCounter: {function: setPageCounter, name: pageCounter},
+    totalH: {function: setTotalH, name: totalH },
+    quantityCard: {function: setQuantityCard, name: quantityCard},
+    checkData: {function: setCheckData, name: checkData},
+    inputData: {function: setInputData, name: inputData},
+    cards: { function: setCards, name: cards},
+    key: {function: setKey, name: key },
+    open: {function: setOpen, name: open},
+    temporary: {function: setTemporary, name: temporary},
+    fillingLevel: {function: setFillingLevel, name: fillingLevel},
+    activeButton: {function: setActiveButton, name: setActiveButton},
+    load: {function: setLoad, name: load},
+    cardID: {function: setCardID, name: cardID},
+  };
+
+  const reset = () => {
+    Object.keys(hooks).reduce((element, index) => {
+      let e = hooks[element].function(resetValue.current[index]);
+    });
+  }
 
   // component did mount
   useEffect(() => {
-    if (
-      totalH <= quantityCard
-    ) {
-      
+    if (totalH <= quantityCard) {
       changeState('quantityCard', 12);
-
-       setActiveButton(false);
-      
+      changeState('activeButton', false);
     }
   }, []);
 
-  useEffect(value => {
-    // scroll down, if 'activeButton' change
-    if (value === activeButton) {
-      // scroll only, if 'activeButton' change to 'true',
+  // scroll down, if 'activeButton' change
+  useEffect(() => {
+    // scroll only, if 'activeButton' change to 'true',
       // because, if 'activeButton' - false, she doesn't exist in DOM!!! It will be error!!
-      if (activeButton === true) autoScroll('loadButton');
-    }
+    if (activeButton === true) autoScroll('loadButton');
+  }, [activeButton]);
 
-    // visible button and hidden loader, when cards load
-    if ((value === cards) && (
-      totalH >= quantityCard
-    )) {
-      setLoad(false);
-      setActiveButton(true);
-    } 
-
+  // visible button and hidden loader, when cards load
+  useEffect(() => {
     // if elementsSet.totalH <= elementsSet.quantityCard
-    if ((value === cards) && (
-      totalH <= quantityCard
-    )) {
+    if (totalH >= quantityCard) {
+      changeState('load', false);
+      changeState('activeButton', true);
+    }
+    if (totalH <= quantityCard) {
       setLoad(false);
-
       // if elementsSet.totalH <= elementsSet.quantityCard
-      if (
-        totalH <= quantityCard && totalH !== 0
-      ) {
-        
+      if (totalH <= quantityCard && totalH !== 0) {
         Notiflix.Notify.info(
           "We're sorry, but you've reached the end of search results."
         );
-        
       }
     } 
-
-    if (
-      value === pageCounter &&
-      pageCounter !== 0
-    ) {
+  }, [cards])
+  
+  useEffect(() => {
+    if(pageCounter !== 0) {
       // 'activeButton: false', that scroll worked in next event load cards,
       // because scroll react on change 'activeButton'
-      setLoad(true);
-      setActiveButton(false);
+      changeState('load', true);
+      changeState('activeButton', false);
 
       // add last itteration, last part of totalH
       if (
         pageCounter === fillingLevel() &&
         totalH > quantityCard
       ) {
-        // temporery value for 63's row
-        setTemporary(fillingLevel() + 1);
-        quantityCard(totalH - quantityCard * fillingLevel());
-        
+        // temporery value for last row
+        changeState('temporary', fillingLevel() + 1);
+        changeState('quantityCard', totalH - quantityCard * fillingLevel());
       }
 
       // control, when total quantity loaded images >= "data.totalHits"
       if (pageCounter > temporary) {
-
         changeState('quantityCard', 12);
 
-        setLoad(false);
-        setActiveButton(false);
+        changeState('load', false);
+        changeState('activeButton', false);
 
         Notiflix.Notify.info(
           "We're sorry, but you've reached the end of search results."
@@ -113,34 +120,20 @@ export const App = () => {
         return;
       }
 
-      
       request(inputData);
-    }
 
-    // new input data !== previous
-    if (value === inputData) {
-      
-      // this.setState({
-      //   pageCounter: 0,
-      //   totalH: 0,
-      //   quantityCard: 12,
-      //   cards: [],
-      //   key: true,
-      //   open: false,
-      //   temporary: undefined,
-      //   fillingLevel: function () {
-      //     return Math.floor(this.totalH / this.quantityCard);
-      //   },
-      //   activeButton: false,
-      //   load: false,
-      //   cardID: '',
-      // });
-
-      setKey(loadPagesControl(inputData));
-      setLoad(true);
     }
-  });
-  
+  }, [pageCounter]);
+
+  useEffect(() => {
+    
+    reset();
+
+    changeState('key', loadPagesControl(inputData));
+    changeState('load', true);
+    
+  }, [inputData]);
+
   const autoScroll = data => {
     // get first card on page and set her to top
     document.getElementById(data).scrollIntoView({
@@ -149,14 +142,13 @@ export const App = () => {
     });
   };
 
-  const changeState = (name, data) => {
-
-    
-    this.setState({ [name]: data })
-    
+  const changeState = (functionName, data) => {
+    hooks[functionName].function(data);
   };
 
   const openModal = data => {
+    setOpen(value => !value);
+    changeState('cardID', data);
     this.setState(value => ({ open: !value.open, cardID: data }));
   };
 
@@ -180,40 +172,38 @@ export const App = () => {
   // "data.totalHits" control
   const loadPagesControl = data => {
     // this.changeState('quantityCard', 200);
-    
+
     //if the request data is repeate
-    if (this.state.checkData === data) {
+    if (checkData === data) {
       // "key" - open/close access to calc loaded pages. When total quantity loaded images >= "data.totalHits",
       // "fillingLevel" will not accumulate further and cause an error.
-      if (this.state.key) {
+      if (key) {
         // counter loaded pages
-        this.setState(value => ({ pageCounter: value.pageCounter + 1 }));
+        
+        hooks.pageCounter.function(value => value + 1);
+
       }
     }
 
     // if the request data isn't repeate
     else {
       
-      this.setState(value => ({ key: value.key || true }));
-      // this.changeState('key', true);
-      this.changeState('temporary', undefined);
-      this.changeState('pageCounter', 1);
-      this.changeState('checkData', data);
-      // changeState(scrollValue, 0);
+      setKey(value => value.key || true);
+
+      changeState('temporary', undefined)
+      changeState('pageCounter', 1)
+      changeState('checkData', undefined)
+    
     }
 
-    return this.state.key;
+    return key;
   };
 
   const request = async data => {
     //'viewKey' - dont't output content, if when total quantity loaded images >= "data.totalHits"
     // and output content, if < "data.totalHits"
     if (key && quantityCard !== 0) {
-      await getDataFromApi(
-        data,
-        pageCounter,
-        quantityCard
-      )
+      await getDataFromApi(data, pageCounter, quantityCard)
         .then(responce => {
           if (responce.data.hits.length !== 0) {
             if (pageCounter === 1) {
@@ -244,19 +234,12 @@ export const App = () => {
       <Searchbar onSubmit={changeState} />
       <ImageGallery cardData={cards} openModal={openModal} />
       {activeButton && (
-        <Button
-          addImages={loadPagesControl}
-          addInput={inputData}
-         />
+        <Button addImages={loadPagesControl} addInput={inputData} />
       )}
       {load && <Loader />}
       {open && (
-        <Modal
-          currentState={cards}
-          imageOpenID={cardID}
-          onClose={openModal}
-        />
+        <Modal currentState={cards} imageOpenID={cardID} onClose={openModal} />
       )}
     </>
   );
-}
+};

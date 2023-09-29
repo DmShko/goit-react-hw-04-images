@@ -35,17 +35,17 @@ export const Loader = () => {
     <div className={lo.element}>
       <div
         className={
-          this.state.counter === 1 ? `${lo.scale} ${lo.circle}` : lo.circle
+          state.counter === 1 ? `${lo.scale} ${lo.circle}` : lo.circle
         }
       ></div>
       <div
         className={
-          this.state.counter === 2 ? `${lo.scale} ${lo.circle}` : lo.circle
+          state.counter === 2 ? `${lo.scale} ${lo.circle}` : lo.circle
         }
       ></div>
       <div
         className={
-          this.state.counter === 3 ? `${lo.scale} ${lo.circle}` : lo.circle
+          state.counter === 3 ? `${lo.scale} ${lo.circle}` : lo.circle
         }
       ></div>
     </div>
