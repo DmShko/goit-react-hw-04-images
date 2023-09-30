@@ -31,7 +31,7 @@ export const App = () => {
   const resetValue = useRef();
   resetValue.current = [0, 0, 12, '', '', [], true, false, undefined, 
   function () {
-    return Math.floor(this.totalH / this.quantityCard);
+    return Math.floor(totalH / quantityCard);
   }, false, false, ''];
 
 
@@ -52,7 +52,8 @@ export const App = () => {
   };
 
   const reset = () => {
-    Object.keys(hooks).reduce((element, index) => {
+    Object.keys(hooks).map((element, index) => {
+      // console.log(element)
       let e = hooks[element].function(resetValue.current[index]);
     });
   }
@@ -99,12 +100,12 @@ export const App = () => {
 
       // add last itteration, last part of totalH
       if (
-        pageCounter === fillingLevel() &&
+        pageCounter === fillingLevel &&
         totalH > quantityCard
       ) {
         // temporery value for last row
-        changeState('temporary', fillingLevel() + 1);
-        changeState('quantityCard', totalH - quantityCard * fillingLevel());
+        changeState('temporary', fillingLevel + 1);
+        changeState('quantityCard', totalH - quantityCard * fillingLevel);
       }
 
       // control, when total quantity loaded images >= "data.totalHits"
