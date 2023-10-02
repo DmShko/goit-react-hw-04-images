@@ -51,7 +51,7 @@ export const App = () => {
     
     hooksFilter.map((element, index) => {
    
-      hooks[element].function(resetValue.current[index]);
+      return hooks[element].function(resetValue.current[index]);
 
     });
   }
@@ -62,7 +62,7 @@ export const App = () => {
       changeState('quantityCard', 12);
       changeState('activeButton', false);
     }
-  }, []);
+  });
  
   useEffect(() => {
     changeState('fillingLevel', Math.floor(totalH / quantityCard));
@@ -77,6 +77,7 @@ export const App = () => {
 
   // visible button and hidden loader, when cards load
   useEffect(() => {
+    
     // if elementsSet.totalH <= elementsSet.quantityCard
     if (totalH >= quantityCard) {
       changeState('load', false);
