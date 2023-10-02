@@ -59,14 +59,17 @@ export const App = () => {
   // component did mount
   useEffect(() => {
     if (totalH <= quantityCard) {
-      changeState('quantityCard', 12);
-      changeState('activeButton', false);
+      setQuantityCard(12);
+      setActiveButton(false)
+      // changeState('quantityCard', 12);
+      // changeState('activeButton', false);
     }
   });
  
   useEffect(() => {
-    changeState('fillingLevel', Math.floor(totalH / quantityCard));
-  }, [totalH]);
+    setFillingLevel(Math.floor(totalH / quantityCard));
+    // changeState('fillingLevel', Math.floor(totalH / quantityCard));
+  }, [totalH, quantityCard]);
 
   // scroll down, if 'activeButton' change
   useEffect(() => {
@@ -80,8 +83,10 @@ export const App = () => {
     
     // if elementsSet.totalH <= elementsSet.quantityCard
     if (totalH >= quantityCard) {
-      changeState('load', false);
-      changeState('activeButton', true);
+      setLoad(false);
+      setActiveButton(true)
+      // changeState('load', false);
+      // changeState('activeButton', true);
     }
     if (totalH <= quantityCard) {
       setLoad(false);
@@ -98,9 +103,10 @@ export const App = () => {
     if(pageCounter !== 0) {
       // 'activeButton: false', that scroll worked in next event load cards,
       // because scroll react on change 'activeButton'
-
-      changeState('load', true);
-      changeState('activeButton', false);
+      setLoad(true);
+      setActiveButton(false)
+      // changeState('load', true);
+      // changeState('activeButton', false);
    
       // add last itteration, last part of totalH
       if (
@@ -109,18 +115,24 @@ export const App = () => {
       ) {
        
          // temporery value for last row
-        changeState('temporary', fillingLevel + 1);
-        changeState('quantityCard', totalH - quantityCard * fillingLevel);
+         setTemporary(fillingLevel + 1);
+         setQuantityCard(totalH - quantityCard * fillingLevel);
+        // changeState('temporary', fillingLevel + 1);
+        // changeState('quantityCard', totalH - quantityCard * fillingLevel);
        
       }
        
       // control, when total quantity loaded images >= "data.totalHits"
       if (pageCounter > temporary) {
-       
-        changeState('quantityCard', 12);
 
-        changeState('load', false);
-        changeState('activeButton', false);
+        setQuantityCard(12);
+        setLoad(false);
+        setActiveButton(false)
+
+        // changeState('quantityCard', 12);
+
+        // changeState('load', false);
+        // changeState('activeButton', false);
 
         Notiflix.Notify.info(
           "We're sorry, but you've reached the end of search results."
