@@ -20,20 +20,14 @@ export const App = () => {
   const [key, setKey] = useState(true);
   const [open, setOpen] = useState(false);
   const [temporary, setTemporary] = useState(undefined);
-  const [fillingLevel, setFillingLevel] = useState(function () {
-    return Math.floor(totalH / quantityCard);
-  });
+  const [fillingLevel, setFillingLevel] = useState( Math.floor(totalH / quantityCard));
   const [activeButton, setActiveButton] = useState(false);
   const [load, setLoad] = useState(false);
   const [cardID, setCardID] = useState('');
 
-
   const resetValue = useRef();
-  resetValue.current = [0, 0, 12, '', '', [], true, false, undefined, 
-  function () {
-    return Math.floor(totalH / quantityCard);
-  }, false, false, ''];
-
+  resetValue.current = [0, 0, 12, [], true, false, undefined, 
+   Math.floor(totalH / quantityCard), false, false, ''];
 
   const hooks = {
     pageCounter: {function: setPageCounter, name: pageCounter},
@@ -52,9 +46,13 @@ export const App = () => {
   };
 
   const reset = () => {
-    Object.keys(hooks).map((element, index) => {
-      // console.log(element)
-      let e = hooks[element].function(resetValue.current[index]);
+    // reset all states, except "inputData" and "checkData"
+    const hooksFilter = Object.keys(hooks).filter(value => value !== "inputData" && value !== "checkData");
+    
+    hooksFilter.map((element, index) => {
+   
+      hooks[element].function(resetValue.current[index]);
+
     });
   }
 
@@ -65,6 +63,10 @@ export const App = () => {
       changeState('activeButton', false);
     }
   }, []);
+ 
+  useEffect(() => {
+    changeState('fillingLevel', Math.floor(totalH / quantityCard));
+  }, [totalH]);
 
   // scroll down, if 'activeButton' change
   useEffect(() => {
@@ -95,21 +97,25 @@ export const App = () => {
     if(pageCounter !== 0) {
       // 'activeButton: false', that scroll worked in next event load cards,
       // because scroll react on change 'activeButton'
+
       changeState('load', true);
       changeState('activeButton', false);
-
+   
       // add last itteration, last part of totalH
       if (
         pageCounter === fillingLevel &&
         totalH > quantityCard
       ) {
-        // temporery value for last row
+       
+         // temporery value for last row
         changeState('temporary', fillingLevel + 1);
         changeState('quantityCard', totalH - quantityCard * fillingLevel);
+       
       }
-
+       
       // control, when total quantity loaded images >= "data.totalHits"
       if (pageCounter > temporary) {
+       
         changeState('quantityCard', 12);
 
         changeState('load', false);
@@ -127,12 +133,13 @@ export const App = () => {
   }, [pageCounter]);
 
   useEffect(() => {
-    
-    reset();
+    if (inputData !== '') {
 
-    changeState('key', loadPagesControl(inputData));
-    changeState('load', true);
-    
+      reset();
+      changeState('key', loadPagesControl(inputData));
+      changeState('load', true);
+
+    }
   }, [inputData]);
 
   const autoScroll = data => {
@@ -148,23 +155,23 @@ export const App = () => {
   };
 
   const openModal = data => {
+
     setOpen(value => !value);
     changeState('cardID', data);
-    this.setState(value => ({ open: !value.open, cardID: data }));
+    
   };
 
   const getCards = parametr => {
     parametr.forEach(element => {
-      const { id, webformatURL, largeImageURL } = element;
 
-      this.setState(value => ({
-        cards: [...value.cards, { id, webformatURL, largeImageURL }],
-      }));
+      const { id, webformatURL, largeImageURL } = element;
+      setCards(value => [...value, {id, webformatURL, largeImageURL}]);
+      
     });
   };
 
   const getDataFromApi = async (data, counter, quantityCard) => {
-    let url = `https://pixabay.com/api/?key=${App.API_KEY}&q=${data}&image_type=photo$orientation=horizontal&safesearch=true&page=1&per_page=${quantityCard}&page=${counter}`;
+    let url = `https://pixabay.com/api/?key=${API_KEY}&q=${data}&image_type=photo$orientation=horizontal&safesearch=true&page=1&per_page=${quantityCard}&page=${counter}`;
     return await axios.get(url).then(responce => {
       return responce;
     });
@@ -173,27 +180,25 @@ export const App = () => {
   // "data.totalHits" control
   const loadPagesControl = data => {
     // this.changeState('quantityCard', 200);
-
+  
     //if the request data is repeate
-    if (checkData === data) {
+    if (checkData === data) { 
       // "key" - open/close access to calc loaded pages. When total quantity loaded images >= "data.totalHits",
       // "fillingLevel" will not accumulate further and cause an error.
       if (key) {
-        // counter loaded pages
         
         hooks.pageCounter.function(value => value + 1);
 
       }
     }
-
     // if the request data isn't repeate
     else {
       
-      setKey(value => value.key || true);
+      setKey(value => !value);
 
       changeState('temporary', undefined)
       changeState('pageCounter', 1)
-      changeState('checkData', undefined)
+      changeState('checkData', data)
     
     }
 
@@ -204,11 +209,15 @@ export const App = () => {
     //'viewKey' - dont't output content, if when total quantity loaded images >= "data.totalHits"
     // and output content, if < "data.totalHits"
     if (key && quantityCard !== 0) {
+ 
       await getDataFromApi(data, pageCounter, quantityCard)
         .then(responce => {
           if (responce.data.hits.length !== 0) {
             if (pageCounter === 1) {
-              this.setState({ totalH: responce.data.totalHits });
+             
+              changeState('totalH', responce.data.totalHits);
+              
+              // this.setState({ totalH: responce.data.totalHits });
               getCards(responce.data.hits);
 
               Notiflix.Notify.info(

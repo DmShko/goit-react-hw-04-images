@@ -9,9 +9,9 @@ const clickHandle = data => {
   return (
     <li
       className={it.item}
-      onClick={() => this.clickHandle(dataItem.id)}
+      onClick={() => clickHandle(dataItem.id)}
     >
-      <img className={it.img} src={this.props.dataItem.webformatURL} alt="" />
+      <img className={it.img} src={dataItem.webformatURL} alt="" />
     </li>
   );
 }

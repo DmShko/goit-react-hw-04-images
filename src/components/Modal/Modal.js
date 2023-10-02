@@ -8,25 +8,28 @@ const modalRoot = document.querySelector('#modal-root');
 
 export const Modal = ({ onClose, currentState, imageOpenID }) => {
 
-  const [url, setURL ] = useState(() => componentMount());
-  // state = {
-  //   largeImageURL: '',
-  // };
+  // close modal window by 'Escape'
+  const driveModal = evt => {
+    if (evt.code === 'Escape') onClose();
+  };
+
+  const [url, setURL ] = useState(() => '');
 
   const componentMount = () => {
 
     window.addEventListener('keydown', driveModal);
 
     currentState.forEach(value => {
+
       if (value.id === imageOpenID)
-        setURL({ largeImageURL: value.largeImageURL });
-      return url;
-        // this.setState({ largeImageURL: value.largeImageURL });
+        setURL(value.largeImageURL);
+      // return url;
+       
     });
   }
 
   useEffect(() => {
-
+    componentMount();
     return () => {
       window.removeEventListener('keydown', driveModal);
     }
@@ -35,11 +38,7 @@ export const Modal = ({ onClose, currentState, imageOpenID }) => {
   //   window.removeEventListener('keydown', this.driveModal);
   // }
 
-  // close modal window by 'Escape'
-  const driveModal = evt => {
-    if (evt.code === 'Escape') onClose();
-  };
-
+  
   // close modal window by click on backdrob
   const clickBackdrob = evt => {
     if (evt.target === evt.currentTarget) onClose();
@@ -48,7 +47,7 @@ export const Modal = ({ onClose, currentState, imageOpenID }) => {
   return createPortal(
     <div className={mod.overlay} onClick={clickBackdrob}>
       <div className={mod.modal}>
-        <img src={URL.largeImageURL} alt="largeImage" />
+        <img src={url} alt="largeImage" />
       </div>
     </div>,
     modalRoot

@@ -3,10 +3,11 @@
     list-style: none; 
     height: 200px;
     width: calc((100vw - 200px) / 4 );
+    
 }
 
 .img {
 
-    object-fit: contain;
+    object-fit: cover;
 
 }

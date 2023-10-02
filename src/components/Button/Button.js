@@ -18,4 +18,3 @@ export const Button = ({ addImages, addInput }) => {
     </div>
   );
 }
-

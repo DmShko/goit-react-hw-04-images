@@ -5,9 +5,7 @@ import { ReactComponent as IconMenu } from '../images/search-com.svg';
 import search from './Searchbar.module.css';
 
 export const Searchbar = ({ onSubmit }) => {
-  // state = {
-  //   imputValue: '',
-  // };
+
   const [ inputState, setInputValue ] = useState({ inputValue: '',});
 
   const changeInput = evt => {
@@ -21,8 +19,6 @@ export const Searchbar = ({ onSubmit }) => {
       onSubmit('inputData', inputState.inputValue);
   };
 
- 
-    // <span className="search.button-label">Search</span> row 29!!!!
   return (
     <header className={search.searchbar}>
       <form className={search.form} onSubmit={formSubmit}>
