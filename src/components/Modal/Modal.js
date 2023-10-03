@@ -28,6 +28,7 @@ export const Modal = ({ onClose, currentState, imageOpenID }) => {
     return () => {
       window.removeEventListener('keydown', driveModal);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   // componentWillUnmount() {
   //   window.removeEventListener('keydown', this.driveModal);

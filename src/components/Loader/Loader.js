@@ -18,6 +18,7 @@ export const Loader = () => {
       counterRef.current = state;
       change();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
   // componentDidUpdate(prevProps, prevState) {
   //   if (prevState.counter !== this.state.counter) this.change();
