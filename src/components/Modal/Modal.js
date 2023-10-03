@@ -7,38 +7,32 @@ import mod from './Modal.module.css';
 const modalRoot = document.querySelector('#modal-root');
 
 export const Modal = ({ onClose, currentState, imageOpenID }) => {
-
   // close modal window by 'Escape'
   const driveModal = evt => {
     if (evt.code === 'Escape') onClose();
   };
 
-  const [url, setURL ] = useState(() => '');
+  const [url, setURL] = useState(() => '');
 
   const componentMount = () => {
-
     window.addEventListener('keydown', driveModal);
 
     currentState.forEach(value => {
-
-      if (value.id === imageOpenID)
-        setURL(value.largeImageURL);
+      if (value.id === imageOpenID) setURL(value.largeImageURL);
       // return url;
-       
     });
-  }
+  };
 
   useEffect(() => {
     componentMount();
     return () => {
       window.removeEventListener('keydown', driveModal);
-    }
-  }, [])
+    };
+  }, []);
   // componentWillUnmount() {
   //   window.removeEventListener('keydown', this.driveModal);
   // }
 
-  
   // close modal window by click on backdrob
   const clickBackdrob = evt => {
     if (evt.target === evt.currentTarget) onClose();
@@ -52,5 +46,4 @@ export const Modal = ({ onClose, currentState, imageOpenID }) => {
     </div>,
     modalRoot
   );
-  
-}
+};
